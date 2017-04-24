@@ -16,6 +16,7 @@ Game::Game() :
     m_outputWidth(800),
     m_outputHeight(600),
     m_featureLevel(D3D_FEATURE_LEVEL_9_1)
+
 {
 }
 
@@ -70,6 +71,10 @@ void Game::Render()
     Clear();
 
     // TODO: Add your rendering code here.
+
+	m_spriteBatch->Begin();
+	m_spriteFont->DrawString(m_spriteBatch.get(), L"Hello, world!", XMFLOAT2(0, 0));
+	m_spriteBatch->End();
 
     Present();
 }
@@ -230,6 +235,10 @@ void Game::CreateDevice()
         (void)m_d3dContext.As(&m_d3dContext1);
 
     // TODO: Initialize device dependent objects here (independent of window size).
+
+	m_spriteBatch = std::make_unique<SpriteBatch>(m_d3dContext.Get());
+	m_spriteFont = std::make_unique<SpriteFont>(m_d3dDevice.Get(), L"Resources/myfile.spritefont");
+
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
