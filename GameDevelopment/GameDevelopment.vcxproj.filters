@@ -32,4 +32,9 @@
   <ItemGroup>
     <None Include="..\..\..\..\..\..\DirectXTK\Readme.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ImageContentTask Include="Assets\cat.png">
+      <Filter>Assets</Filter>
+    </ImageContentTask>
+  </ItemGroup>
 </Project>

@@ -5,6 +5,12 @@
 #include "pch.h"
 #include "Game.h"
 
+// png用
+#include <WICTextureLoader.h>
+// dds用
+#include <DDSTextureLoader.h>
+#include <CommonStates.h>
+
 extern void ExitGame();
 
 using namespace DirectX;
@@ -70,9 +76,19 @@ void Game::Render()
 
     Clear();
 
-    // TODO: Add your rendering code here.
+	CommonStates states(m_d3dDevice.Get());
+	// TODO: Add your rendering code here.
 
-	m_spriteBatch->Begin();
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, states.NonPremultiplied());
+	// スプライト描画
+	m_spriteBatch->Draw(m_texture.Get(), // テクスチャ
+		m_screenPos,					// 描画座標
+		nullptr,						// 描画矩形
+		Colors::White,					// 色を掛け合わせる
+		0.f,							// 回転角
+		m_origin);						// anchor
+
+
 	m_spriteFont->DrawString(m_spriteBatch.get(), L"Hello, world!", XMFLOAT2(0, 0));
 	m_spriteBatch->End();
 
@@ -239,6 +255,32 @@ void Game::CreateDevice()
 	m_spriteBatch = std::make_unique<SpriteBatch>(m_d3dContext.Get());
 	m_spriteFont = std::make_unique<SpriteFont>(m_d3dDevice.Get(), L"Resources/myfile.spritefont");
 
+	// リソース情報
+	ComPtr<ID3D11Resource> resource;
+	DX::ThrowIfFailed(
+		CreateWICTextureFromFile(m_d3dDevice.Get(), L"Resources/cat.png",
+			resource.GetAddressOf(),
+			m_texture.ReleaseAndGetAddressOf()));
+	//DX::ThrowIfFailed(
+	//	CreateDDSTextureFromFile(m_d3dDevice.Get(), L"Resources/cat.dds",
+	//		resource.GetAddressOf(),
+	//		m_texture.ReleaseAndGetAddressOf()));
+
+	// 猫のテクスチャ
+	ComPtr<ID3D11Texture2D> cat;
+	DX::ThrowIfFailed(resource.As(&cat));
+
+	// テクスチャの情報
+	CD3D11_TEXTURE2D_DESC catDesc;
+	cat->GetDesc(&catDesc);
+
+	// テクスチャの原点を画像の中心にする
+	m_origin.x = float(catDesc.Width / 2);
+	m_origin.y = float(catDesc.Height / 2);
+
+	// 表示座標を画面の中央に指定
+	m_screenPos.x = m_outputWidth / 2.f;
+	m_screenPos.y = m_outputHeight / 2.f;
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.

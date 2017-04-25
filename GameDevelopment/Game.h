@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <SimpleMath.h>
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include "StepTimer.h"
@@ -70,4 +71,11 @@ private:
 	// スプライトフォント
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 
+	// テクスチャ
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
+
+	// スプライト表示スクリーン座標
+	DirectX::SimpleMath::Vector2 m_screenPos;
+	// スプライト中心
+	DirectX::SimpleMath::Vector2 m_origin;
 };
