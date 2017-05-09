@@ -7,6 +7,8 @@
 #include <SimpleMath.h>
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
+#include <Keyboard.h>
+#include <Mouse.h>
 #include "StepTimer.h"
 
 
@@ -78,4 +80,13 @@ private:
 	DirectX::SimpleMath::Vector2 m_screenPos;
 	// スプライト中心
 	DirectX::SimpleMath::Vector2 m_origin;
+
+	// キーボード
+	std::unique_ptr<DirectX::Keyboard> m_keyboard;
+	DirectX::Keyboard::KeyboardStateTracker tracker;
+
+	// マウス
+	std::unique_ptr<DirectX::Mouse> m_mouse;
+	DirectX::Mouse::ButtonStateTracker motracker;
+
 };

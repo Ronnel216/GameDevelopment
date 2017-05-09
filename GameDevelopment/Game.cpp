@@ -43,6 +43,44 @@ void Game::Initialize(HWND window, int width, int height)
     m_timer.SetFixedTimeStep(true);
     m_timer.SetTargetElapsedSeconds(1.0 / 60);
     */
+
+	m_spriteBatch = std::make_unique<SpriteBatch>(m_d3dContext.Get());
+	m_spriteFont = std::make_unique<SpriteFont>(m_d3dDevice.Get(), L"Resources/myfile.spritefont");
+
+	// リソース情報
+	ComPtr<ID3D11Resource> resource;
+	DX::ThrowIfFailed(
+		CreateWICTextureFromFile(m_d3dDevice.Get(), L"Resources/cat.png",
+			resource.GetAddressOf(),
+			m_texture.ReleaseAndGetAddressOf()));
+	//DX::ThrowIfFailed(
+	//	CreateDDSTextureFromFile(m_d3dDevice.Get(), L"Resources/cat.dds",
+	//		resource.GetAddressOf(),
+	//		m_texture.ReleaseAndGetAddressOf()));
+
+	// 猫のテクスチャ
+	ComPtr<ID3D11Texture2D> cat;
+	DX::ThrowIfFailed(resource.As(&cat));
+
+	// テクスチャの情報
+	CD3D11_TEXTURE2D_DESC catDesc;
+	cat->GetDesc(&catDesc);
+
+	// テクスチャの原点を画像の中心にする
+	m_origin.x = float(catDesc.Width / 2);
+	m_origin.y = float(catDesc.Height / 2);
+
+	// 表示座標を画面の中央に指定
+	m_screenPos.x = m_outputWidth / 2.f;
+	m_screenPos.y = m_outputHeight / 2.f;
+
+	// キーボードインスタンス化
+	m_keyboard = std::make_unique<DirectX::Keyboard>();
+
+	// マウス
+	m_mouse = std::make_unique<DirectX::Mouse>();
+	// ウィンドウハンドラを通知
+	m_mouse->SetWindow(window);
 }
 
 // Executes the basic game loop.
@@ -62,6 +100,66 @@ void Game::Update(DX::StepTimer const& timer)
     float elapsedTime = float(timer.GetElapsedSeconds());
 
     // TODO: Add your game logic here.
+	auto state = m_mouse->GetState();
+	motracker.Update(state);
+	using ButtonState = Mouse::ButtonStateTracker::ButtonState;
+
+	if (motracker.rightButton == ButtonState::PRESSED) {
+	}
+		// Take an action when Right mouse button is first pressed,
+		// but don't do it again until the button is released and
+		// then pressed again
+	if (state.leftButton) {
+	}
+		// Left button is down
+
+	XMFLOAT2 mousePosInPixels(float(state.x), float(state.y));
+	m_screenPos = mousePosInPixels;
+	// This is the absolute position of the mouse relative
+	// to the upper-left corner of the window
+
+	if (motracker.leftButton == Mouse::ButtonStateTracker::ButtonState::PRESSED)
+	{
+		m_mouse->SetMode(Mouse::MODE_RELATIVE);
+	}
+	else if (motracker.leftButton == Mouse::ButtonStateTracker::ButtonState::RELEASED)
+	{
+		m_mouse->SetMode(Mouse::MODE_ABSOLUTE);
+	}
+
+	if (motracker.rightButton == Mouse::ButtonStateTracker::ButtonState::PRESSED) {
+		m_screenPos = DirectX::SimpleMath::Vector2(m_outputWidth, m_outputHeight + 100);
+	}
+
+	auto kb = m_keyboard->GetState();
+	tracker.Update(kb);
+      
+	if (kb.A) {
+		//m_screenPos += DirectX::SimpleMath::Vector2(-1.0f, 0.0f);
+	};
+				// A key is down
+
+	if (kb.D) {
+		//m_screenPos += DirectX::SimpleMath::Vector2(1.0f, 0.0f);
+
+	};
+						// D key is down
+
+
+
+	if (tracker.pressed.Space) {
+		//m_screenPos += DirectX::SimpleMath::Vector2(0.f, -20.0f);
+	}
+		// Space was just pressed down
+
+	if (tracker.IsKeyReleased(Keyboard::Keys::Enter)) {
+		//m_screenPos = DirectX::SimpleMath::Vector2(m_outputWidth / 2, m_outputHeight / 2);;
+	}
+			// F1 key was just released
+	if (-500 < m_screenPos.y) {
+		//m_screenPos.y += 2;
+	}
+									// Return key is down
     elapsedTime;
 }
 
@@ -252,35 +350,6 @@ void Game::CreateDevice()
 
     // TODO: Initialize device dependent objects here (independent of window size).
 
-	m_spriteBatch = std::make_unique<SpriteBatch>(m_d3dContext.Get());
-	m_spriteFont = std::make_unique<SpriteFont>(m_d3dDevice.Get(), L"Resources/myfile.spritefont");
-
-	// リソース情報
-	ComPtr<ID3D11Resource> resource;
-	DX::ThrowIfFailed(
-		CreateWICTextureFromFile(m_d3dDevice.Get(), L"Resources/cat.png",
-			resource.GetAddressOf(),
-			m_texture.ReleaseAndGetAddressOf()));
-	//DX::ThrowIfFailed(
-	//	CreateDDSTextureFromFile(m_d3dDevice.Get(), L"Resources/cat.dds",
-	//		resource.GetAddressOf(),
-	//		m_texture.ReleaseAndGetAddressOf()));
-
-	// 猫のテクスチャ
-	ComPtr<ID3D11Texture2D> cat;
-	DX::ThrowIfFailed(resource.As(&cat));
-
-	// テクスチャの情報
-	CD3D11_TEXTURE2D_DESC catDesc;
-	cat->GetDesc(&catDesc);
-
-	// テクスチャの原点を画像の中心にする
-	m_origin.x = float(catDesc.Width / 2);
-	m_origin.y = float(catDesc.Height / 2);
-
-	// 表示座標を画面の中央に指定
-	m_screenPos.x = m_outputWidth / 2.f;
-	m_screenPos.y = m_outputHeight / 2.f;
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
