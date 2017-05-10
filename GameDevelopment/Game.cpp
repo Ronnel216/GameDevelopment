@@ -11,6 +11,12 @@
 #include <DDSTextureLoader.h>
 #include <CommonStates.h>
 
+#include "ADX2Le.h"
+
+#include "Resources\\Music\CueSheet_0.h"
+
+
+
 extern void ExitGame();
 
 using namespace DirectX;
@@ -24,6 +30,11 @@ Game::Game() :
     m_featureLevel(D3D_FEATURE_LEVEL_9_1)
 
 {
+}
+
+Game::~Game()
+{
+	ADX2Le::Finalize();
 }
 
 // Initialize the Direct3D resources required to run.
@@ -81,6 +92,15 @@ void Game::Initialize(HWND window, int width, int height)
 	m_mouse = std::make_unique<DirectX::Mouse>();
 	// ウィンドウハンドラを通知
 	m_mouse->SetWindow(window);
+
+	// プレイヤ初期化
+	ADX2Le::Initialize("Resources\Music\\SeeSand.acf");
+
+	// 読み込み
+	ADX2Le::LoadAcb("Resources\\Music\\CueSheet_0.acb", "Resources/Music/CueSheet_0.awb");
+
+	// 再生
+	ADX2Le::Play(CRI_CUESHEET_0_PLAYBGM);
 }
 
 // Executes the basic game loop.
@@ -103,6 +123,9 @@ void Game::Update(DX::StepTimer const& timer)
 	auto state = m_mouse->GetState();
 	motracker.Update(state);
 	using ButtonState = Mouse::ButtonStateTracker::ButtonState;
+
+	// サウンド更新
+	ADX2Le::Update();
 
 	if (motracker.rightButton == ButtonState::PRESSED) {
 	}
