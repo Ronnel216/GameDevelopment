@@ -9,6 +9,8 @@
 #include <SpriteFont.h>
 #include <Keyboard.h>
 #include <Mouse.h>
+#include <GamePad.h>
+#include <string>
 #include "StepTimer.h"
 
 
@@ -74,6 +76,9 @@ private:
 	// スプライトフォント
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 
+	// デバック用文字
+	std::string str[200];
+
 	// テクスチャ
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
 
@@ -90,4 +95,9 @@ private:
 	std::unique_ptr<DirectX::Mouse> m_mouse;
 	DirectX::Mouse::ButtonStateTracker motracker;
 
+	bool attack;
+	bool guard;
+
+	// ゲームパッド
+	std::unique_ptr<DirectX::GamePad> gamePad;
 };

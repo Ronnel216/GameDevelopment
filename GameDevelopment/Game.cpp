@@ -101,6 +101,9 @@ void Game::Initialize(HWND window, int width, int height)
 
 	// 再生
 	ADX2Le::Play(CRI_CUESHEET_0_PLAYBGM);
+
+	// ゲームパッド
+	gamePad = std::make_unique<GamePad>();
 }
 
 // Executes the basic game loop.
@@ -182,6 +185,50 @@ void Game::Update(DX::StepTimer const& timer)
 	if (-500 < m_screenPos.y) {
 		//m_screenPos.y += 2;
 	}
+
+	auto stateP = gamePad->GetState(0);
+	if (stateP.IsConnected()) {
+		if (stateP.IsAPressed()) {
+
+		}
+		if (stateP.IsDPadDownPressed()) {
+
+		}
+
+		// 左スティック
+		float posx = stateP.thumbSticks.leftX;
+		float posy = stateP.thumbSticks.leftY;
+		// 振動
+		gamePad->SetVibration(0.f, posx, stateP.thumbSticks.leftY);
+
+		// 右トリガー
+		float throttle = stateP.triggers.left;
+
+		// デバイスの能力を取得
+		auto caps = gamePad->GetCapabilities(0);
+
+		static int mode = 0;
+		attack = false;
+		guard = false;
+		static auto st = stateP;
+		if (!st.IsBackPressed() && stateP.IsBackPressed()) mode == 0 ? mode = 1 : mode = 0;
+		switch (mode)
+		{
+		case 0:
+			attack = stateP.IsAPressed();
+			guard = stateP.IsBPressed();
+			break;
+		case 1:
+			guard = stateP.IsAPressed();
+			attack = stateP.IsBPressed();
+			break;
+		default:
+			break;
+		}
+		st = stateP;
+
+
+	}
 									// Return key is down
     elapsedTime;
 }
@@ -208,9 +255,16 @@ void Game::Render()
 		Colors::White,					// 色を掛け合わせる
 		0.f,							// 回転角
 		m_origin);						// anchor
+	
+	if (attack) {
+		m_spriteFont->DrawString(m_spriteBatch.get(), L"Guard", XMFLOAT2(0, 0));
 
+	}
+	if (guard) {
+		m_spriteFont->DrawString(m_spriteBatch.get(), L"Attack", XMFLOAT2(0, 0));
 
-	m_spriteFont->DrawString(m_spriteBatch.get(), L"Hello, world!", XMFLOAT2(0, 0));
+	}
+
 	m_spriteBatch->End();
 
     Present();
